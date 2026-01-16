@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NC Building Contractor Practice Exam — Quiz App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="title">
+      <h1>NC Building Contractor Practice Exam</h1>
+      <p class="sub">Practice + Exam modes • progress saved locally</p>
+    </div>
+    <div class="header-actions">
+      <button id="btnHome" class="btn btn-ghost" title="Back to setup">Home</button>
+      <button id="btnReset" class="btn btn-ghost" title="Clear saved progress">Reset</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="viewSetup" class="card">
+      <h2>Start</h2>
+
+      <div class="grid">
+        <div>
+          <label class="label">Mode</label>
+          <div class="segmented" role="tablist" aria-label="Mode">
+            <button class="seg active" data-mode="practice" role="tab" aria-selected="true">Practice</button>
+            <button class="seg" data-mode="exam" role="tab" aria-selected="false">Exam</button>
+          </div>
+          <p class="hint" id="modeHint">Practice gives instant feedback after each question.</p>
+        </div>
+
+        <div>
+          <label class="label">Question set</label>
+          <select id="questionCount" class="select">
+            <option value="10">10 questions</option>
+            <option value="25" selected>25 questions</option>
+            <option value="50">50 questions</option>
+            <option value="100">100 questions</option>
+            <option value="all">All questions</option>
+            <option value="missed">Only previously missed</option>
+          </select>
+          <p class="hint">There are <span id="totalCount">…</span> total questions.</p>
+        </div>
+
+        <div>
+          <label class="label">Options</label>
+          <label class="check"><input type="checkbox" id="shuffle" checked /> Shuffle questions</label>
+          <label class="check"><input type="checkbox" id="shuffleChoices" checked /> Shuffle answers</label>
+          <label class="check"><input type="checkbox" id="showExplanation" /> Show “why” (if available)</label>
+          <p class="hint">Your selections & progress are stored in your browser (local only).</p>
+        </div>
+
+        <div id="examOptions" class="examOptions">
+          <label class="label">Exam timer</label>
+          <div class="row">
+            <input id="examMinutes" class="input" type="number" min="1" max="600" value="60" />
+            <span class="muted">minutes</span>
+          </div>
+          <p class="hint">In Exam mode, feedback is shown at the end.</p>
+        </div>
+      </div>
+
+      <div class="row gap">
+        <button id="btnStart" class="btn btn-primary">Start</button>
+        <button id="btnResume" class="btn" disabled>Resume saved session</button>
+      </div>
+
+      <details class="details">
+        <summary>Keyboard shortcuts</summary>
+        <ul>
+          <li><kbd>1</kbd>–<kbd>9</kbd> choose answer</li>
+          <li><kbd>Enter</kbd> next / submit</li>
+          <li><kbd>R</kbd> reveal answer (Practice only)</li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="viewQuiz" class="card hidden" aria-live="polite">
+      <div class="quiz-top">
+        <div class="progress">
+          <div class="progress-meta">
+            <span id="progressText">Question 1 of 25</span>
+            <span id="timerText" class="timer hidden">⏱ 60:00</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="quiz-actions">
+          <button id="btnFlag" class="btn btn-ghost" title="Flag this question">Flag</button>
+          <button id="btnPause" class="btn btn-ghost" title="Pause / Save">Pause</button>
+        </div>
+      </div>
+
+      <div id="questionCard" class="question">
+        <div class="q-meta">
+          <span id="qId" class="pill">#1</span>
+          <span id="qFlags" class="muted"></span>
+        </div>
+        <h3 id="qText">…</h3>
+        <div id="choices" class="choices"></div>
+        <div id="feedback" class="feedback hidden"></div>
+
+        <div class="row gap">
+          <button id="btnPrev" class="btn" disabled>Previous</button>
+          <button id="btnReveal" class="btn btn-ghost hidden">Reveal</button>
+          <button id="btnNext" class="btn btn-primary" disabled>Next</button>
+        </div>
+      </div>
+
+      <div class="row gap muted small">
+        <span>Saved: <span id="saveStatus">—</span></span>
+        <span>Flagged: <span id="flagCount">0</span></span>
+      </div>
+    </section>
+
+    <section id="viewResults" class="card hidden">
+      <h2>Results</h2>
+      <div class="results-grid">
+        <div class="stat">
+          <div class="stat-label">Score</div>
+          <div id="scoreText" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Correct</div>
+          <div id="correctText" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Incorrect</div>
+          <div id="incorrectText" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Unanswered</div>
+          <div id="blankText" class="stat-value">—</div>
+        </div>
+      </div>
+
+      <div class="row gap">
+        <button id="btnReviewMissed" class="btn btn-primary">Practice missed</button>
+        <button id="btnReviewFlagged" class="btn">Review flagged</button>
+        <button id="btnBackSetup" class="btn btn-ghost">Back to setup</button>
+      </div>
+
+      <h3>Question review</h3>
+      <div class="row gap">
+        <input id="search" class="input" type="search" placeholder="Search questions…" />
+        <select id="filter" class="select">
+          <option value="all" selected>All</option>
+          <option value="missed">Missed</option>
+          <option value="flagged">Flagged</option>
+          <option value="correct">Correct</option>
+          <option value="blank">Unanswered</option>
+        </select>
+      </div>
+
+      <div id="reviewList" class="review"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="muted">Local-only app. No data leaves your computer.</span>
+  </footer>
+  <script src="questions.js">
+const PASS_THRESHOLD = 70; // percent required to pass
+
+function getPassFail(scorePercent) {
+    return scorePercent >= PASS_THRESHOLD
+        ? `PASS ✅ (≥ ${PASS_THRESHOLD}%)`
+        : `FAIL ❌ (< ${PASS_THRESHOLD}%)`;
+}
+</script>
+
+  <script src="app.js">
+const PASS_THRESHOLD = 70; // percent required to pass
+
+function getPassFail(scorePercent) {
+    return scorePercent >= PASS_THRESHOLD
+        ? `PASS ✅ (≥ ${PASS_THRESHOLD}%)`
+        : `FAIL ❌ (< ${PASS_THRESHOLD}%)`;
+}
+</script>
+
+</body>
+</html>
