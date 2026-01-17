@@ -569,7 +569,8 @@ async function loadQuestions() {
   if (window.__QUESTIONS__ && Array.isArray(window.__QUESTIONS__)) return window.__QUESTIONS__;
   const res = await fetch('questions.json');
   if (!res.ok) throw new Error('Failed to load questions.json');
-  return await res.json();
+  const data = await res.json();
+return Array.isArray(data) ? data : (data.questions || []);
 }
 
 async function init(){
