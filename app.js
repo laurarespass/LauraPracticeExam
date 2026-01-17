@@ -619,7 +619,7 @@ async function init(){
   // Quiz nav
   els.btnPrev.addEventListener('click', () => go(-1));
   els.btnNext.addEventListener('click', () => {
-    if(session.mode==='exam' && session.index===session.questionIds.length-1){
+    if(session.index===session.questionIds.length-1){
       finishSession(false);
       return;
     }
