@@ -278,7 +278,11 @@ function renderQuestion(){
   els.feedback.classList.add('hidden');
   els.feedback.classList.remove('good','bad');
 
-  const canGoNext = chosen.length>0 || session.mode==='exam';
+  const canGoNext =
+  chosen.length > 0 ||
+  session.mode === 'exam' ||
+  session.mode === 'practice';
+  
   els.btnNext.disabled = !canGoNext;
 
   els.btnReveal.classList.toggle('hidden', session.mode!=='practice');
